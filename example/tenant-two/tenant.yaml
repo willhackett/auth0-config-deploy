@@ -1,0 +1,11 @@
+enabled_locales:
+  - en
+flags:
+  allow_changing_enable_sso: false
+  disable_impersonation: true
+  enable_sso: true
+  disable_clickjack_protection_headers: false
+sandbox_version: "12"
+sandbox_versions_available:
+  - "12"
+  - "8"

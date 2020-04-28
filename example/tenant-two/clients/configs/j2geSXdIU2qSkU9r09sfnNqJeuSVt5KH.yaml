@@ -1,0 +1,20 @@
+global: false
+is_token_endpoint_ip_header_trusted: false
+name: Auth0 Config Deploy CLI
+is_first_party: true
+oidc_conformant: true
+sso_disabled: false
+cross_origin_auth: false
+client_id: j2geSXdIU2qSkU9r09sfnNqJeuSVt5KH
+callback_url_template: false
+jwt_configuration:
+  alg: RS256
+  lifetime_in_seconds: 36000
+  secret_encoded: false
+app_type: non_interactive
+grant_types:
+  - client_credentials
+custom_login_page_on: true
+enabled_realms:
+  - google-oauth2
+  - Username-Password-Authentication
