@@ -1,7 +1,7 @@
 /**
  * API configuration file
  */
-export const API_CONFIG = '/api/configs/{ID}.yaml';
+export const API_CONFIG = '/apis/configs/{ID}.yaml';
 
 /**
  * APIs common configuration file
