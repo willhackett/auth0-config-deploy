@@ -8,5 +8,6 @@ strategy: google-oauth2
 name: google-oauth2
 is_domain_connection: false
 enabled_clients:
+  - ceh6GiEdyU84dDhhxw7j6A4b5TmATi88
   - j2geSXdIU2qSkU9r09sfnNqJeuSVt5KH
   - 6Tukpwy2zvo9pSY1Xh465s6DRprAnfeK

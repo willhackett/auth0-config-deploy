@@ -1,3 +1,4 @@
+import {} from './../config/paths';
 import Listr from 'listr';
 import { stringify } from 'yaml';
 import fs from 'fs';
@@ -8,7 +9,9 @@ import { omit, forEach } from 'lodash/fp';
 import { MainCtx } from '../main';
 import {
   TENANT_CONFIG,
+  API_CONFIG,
   API_CONFIG_DIR,
+  API_CONFIG_COMMON,
   CLIENT_CONFIG_DIR,
   CONNECTIONS_CONFIG_DIR,
   RULES_CONFIG,
@@ -28,7 +31,7 @@ const mkdir = promisify(fs.mkdir);
 
 const createDirectories = async (
   baseDirectory: string,
-  directories: Array<string>
+  directories: Array<string>,
 ) =>
   Promise.all(
     directories.map(async (directory: string) => {
@@ -37,7 +40,7 @@ const createDirectories = async (
       if (!directoryExists) {
         return mkdir(fullDirectoryPath, { recursive: true });
       }
-    })
+    }),
   );
 
 export default async (ctx: MainCtx) => {
@@ -115,7 +118,7 @@ export default async (ctx: MainCtx) => {
             enabled: rule.enabled ? true : false,
             file: fileName,
           };
-        })
+        }),
       );
 
       const environment: { [index: string]: string } = {};
@@ -179,7 +182,7 @@ export default async (ctx: MainCtx) => {
                 CUSTOM_DATABASE_SCRIPT_DIR.replace('{ID}', connectionName),
                 CUSTOM_DATABASE_SCRIPT_TESTS_DIR.replace(
                   '{ID}',
-                  connectionName
+                  connectionName,
                 ),
               ]);
 
@@ -191,7 +194,7 @@ export default async (ctx: MainCtx) => {
 
                     const filePath = CUSTOM_DATABASE_SCRIPT.replace(
                       '{ID}',
-                      connectionName
+                      connectionName,
                     ).replace('{SCRIPT}', script);
 
                     return writeFile(
@@ -200,10 +203,10 @@ export default async (ctx: MainCtx) => {
                       {
                         encoding: 'utf8',
                         flag: 'w',
-                      }
+                      },
                     );
-                  }
-                )
+                  },
+                ),
               );
             }
           }
@@ -220,7 +223,7 @@ export default async (ctx: MainCtx) => {
             encoding: 'utf8',
             flag: 'w',
           });
-        })
+        }),
       );
     },
   });
@@ -244,7 +247,7 @@ export default async (ctx: MainCtx) => {
         clients.map(async (client) => {
           if (!client.client_id) {
             console.warn(
-              `Skipping client ${client.name} as client_id is empty.`
+              `Skipping client ${client.name} as client_id is empty.`,
             );
             return;
           }
@@ -276,7 +279,46 @@ export default async (ctx: MainCtx) => {
             encoding: 'utf8',
             flag: 'w',
           });
-        })
+        }),
+      );
+    },
+  });
+
+  /**
+   * GETTING RESOURCE SERVERS (API)
+   * Store Api information
+   */
+  tasks.add({
+    title: 'Getting resource servers (API)',
+    task: async (ctx: MainCtx) => {
+      const apis = await client.getResourceServers();
+
+      await writeFile(path.join(baseDirectory, API_CONFIG_COMMON), '', {
+        encoding: 'utf8',
+        flag: 'w',
+      });
+
+      const omitFields = omit(['signing_secret']);
+
+      return Promise.all(
+        apis.map(async (api) => {
+          if (!api.id) {
+            console.warn(`Skipping api ${api.name} as id is empty.`);
+            return;
+          }
+
+          const id = api.id;
+
+          const filePath = API_CONFIG.replace('{ID}', id);
+          const config = omitFields(api);
+
+          const yaml = stringify(config);
+
+          return writeFile(path.join(baseDirectory, filePath), yaml, {
+            encoding: 'utf8',
+            flag: 'w',
+          });
+        }),
       );
     },
   });
