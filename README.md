@@ -6,12 +6,12 @@ Configure, test &amp; deploy Auth0 config via the Management API
 
 ### Usage
 
-| Argument                | Purpose                                                       |
-| ----------------------- | ------------------------------------------------------------- |
-| `--init`                | Creates the directory structure used to deploy configurations |
-| `--deploy` (Alias `-d`) | Tests and deploys the current configuration                   |
-| `--test` (Alias `-t`)   | Tests the current configuration                               |
-| `--dry-run`             | Tests and provides verbose output of intended API calls       |
+| Argument                | Purpose                                                        |
+| ----------------------- | -------------------------------------------------------------- |
+| `--init`                | Creates the directory structure based on current tenant config |
+| `--deploy` (Alias `-d`) | Tests and deploys the current configuration                    |
+| `--test` (Alias `-t`)   | Tests the current configuration                                |
+| `--dry-run`             | Tests and provides verbose output of intended API calls        |
 
 ### Configuration
 
