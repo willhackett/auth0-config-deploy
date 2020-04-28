@@ -44,6 +44,12 @@ export const CONNECTIONS_CONFIG_COMMON = '/connections/common.yaml';
 export const CONNECTIONS_CONFIG_DIR = '/connections/configs/';
 
 /**
+ * Connections custom database script file path
+ */
+export const CUSTOM_DATABASE_SCRIPT =
+  '/connections/configs/{ID}/custom_database/{SCRIPT}.js';
+
+/**
  * Connections custom database script directory
  */
 export const CUSTOM_DATABASE_SCRIPT_DIR =

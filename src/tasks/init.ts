@@ -3,6 +3,7 @@ import { stringify } from 'yaml';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { omit, forEach } from 'lodash/fp';
 
 import { MainCtx } from '../main';
 import {
@@ -15,6 +16,9 @@ import {
   RULE,
   CONNECTIONS_CONFIG_COMMON,
   CONNECTION_CONFIG,
+  CLIENT_CONFIG,
+  CUSTOM_DATABASE_SCRIPT_DIR,
+  CUSTOM_DATABASE_SCRIPT,
 } from '../config/paths';
 
 const exists = promisify(fs.exists);
@@ -138,7 +142,9 @@ export default async (ctx: MainCtx) => {
    */
   tasks.add({
     title: 'Getting connections',
-    task: async (ctx) => {
+    task: async (ctx: MainCtx) => {
+      ctx.connections = {};
+
       const connectionsConfig = await client.getConnections();
 
       await writeFile(path.join(baseDirectory, CONNECTIONS_CONFIG_COMMON), '', {
@@ -152,9 +158,52 @@ export default async (ctx: MainCtx) => {
             console.warn(`Skipping ${id} because the connection has no name.`);
             return;
           }
-          const filePath = CONNECTION_CONFIG.replace('{ID}', connection.name);
+
+          const connectionName = connection.name;
+
+          if (ctx.connections) {
+            // Store in context for later use
+            ctx.connections[connectionName] = connection;
+          }
+
+          const filePath = CONNECTION_CONFIG.replace('{ID}', connectionName);
 
           const connectionYAML = stringify(connection);
+
+          if (id) {
+            const connectionConfig = await client.getConnection({ id });
+            if (connection.options.customScripts) {
+              await Promise.all(
+                Object.keys(connection.options.customScripts).map(
+                  async (script) => {
+                    const source = connection.options.customScripts[script];
+
+                    const filePath = CUSTOM_DATABASE_SCRIPT.replace(
+                      '{ID}',
+                      connectionName
+                    ).replace('{SCRIPT}', script);
+
+                    return writeFile(
+                      path.join(baseDirectory, filePath),
+                      source,
+                      {
+                        encoding: 'utf8',
+                        flag: 'w',
+                      }
+                    );
+                  }
+                )
+              );
+            }
+          }
+
+          const omitConnectionOptions = omit(['customScripts']);
+
+          connection.options = omitConnectionOptions(connection.options);
+
+          await createDirectories(baseDirectory, [
+            CUSTOM_DATABASE_SCRIPT_DIR.replace('{ID}', connectionName),
+          ]);
 
           return writeFile(path.join(baseDirectory, filePath), connectionYAML, {
             encoding: 'utf8',
@@ -164,6 +213,66 @@ export default async (ctx: MainCtx) => {
       );
     },
   });
+
+  /**
+   * GETTING CLIENTS
+   * Store client information
+   */
+  tasks.add({
+    title: 'Getting clients',
+    task: async (ctx: MainCtx) => {
+      const clients = await client.getClients();
+
+      const omitClientFields = omit([
+        'tenant',
+        'client_secret',
+        'signing_keys',
+      ]);
+
+      return Promise.all(
+        clients.map(async (client) => {
+          if (!client.client_id) {
+            console.warn(
+              `Skipping client ${client.name} as client_id is empty.`
+            );
+            return;
+          }
+
+          const clientId = client.client_id;
+
+          const filePath = CLIENT_CONFIG.replace('{ID}', clientId);
+          const clientConfig = omitClientFields(client);
+          const enabledRealms: Array<string> = [];
+
+          if (ctx.connections) {
+            forEach((connection) => {
+              if (!connection.name) {
+                return;
+              }
+
+              if (connection.enabled_clients?.includes(clientId)) {
+                enabledRealms.push(connection.name);
+              }
+            }, ctx.connections);
+          }
+
+          const clientYAML = stringify({
+            ...clientConfig,
+            enabled_realms: enabledRealms,
+          });
+
+          return writeFile(path.join(baseDirectory, filePath), clientYAML, {
+            encoding: 'utf8',
+            flag: 'w',
+          });
+        })
+      );
+    },
+  });
+
+  /**
+   *
+   */
 
   return tasks;
 };

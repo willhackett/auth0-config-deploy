@@ -1,4 +1,4 @@
-import { ManagementClient } from 'auth0';
+import { ManagementClient, Connection } from 'auth0';
 import Listr from 'listr';
 
 import parseCommandArgs, { CommandArgs } from './modules/commandArgs';
@@ -13,7 +13,9 @@ export interface MainCtx {
   argv: CommandArgs;
   env?: EnvVars;
   managementClient?: ManagementClient;
-  configuration?: any;
+  connections?: {
+    [index: string]: Connection;
+  };
 }
 
 async function main() {

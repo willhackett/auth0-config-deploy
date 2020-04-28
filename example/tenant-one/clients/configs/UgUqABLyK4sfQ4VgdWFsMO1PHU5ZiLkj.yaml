@@ -1,0 +1,8 @@
+global: true
+callbacks: []
+is_first_party: true
+name: All Applications
+owners:
+  - auth0|5d9ebed0678fe40e6f761c7e
+client_id: UgUqABLyK4sfQ4VgdWFsMO1PHU5ZiLkj
+enabled_realms: []
