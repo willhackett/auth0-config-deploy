@@ -1,6 +1,15 @@
 environment:
-  - key: ABCD
+  ABCD: "{{ env.ABCD }}"
 rules:
-  - {}
-  - {}
-  - {}
+  - name: Disable the Resource Owner endpoint
+    order: 1
+    enabled: true
+    file: Disable_the_Resource_Owner_endpoint
+  - name: Set roles to a user
+    order: 2
+    enabled: false
+    file: Set_roles_to_a_user
+  - name: Use the original sized profile picture for LinkedIn connections
+    order: 3
+    enabled: true
+    file: Use_the_original_sized_profile_picture_for_LinkedIn_connections

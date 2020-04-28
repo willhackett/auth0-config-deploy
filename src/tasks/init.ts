@@ -89,33 +89,39 @@ export default async (ctx: MainCtx) => {
       const rulesEnvironment = await client.getRulesConfigs();
       const rulesConfigs = await client.getRules();
 
-      const rules = rulesConfigs.map(async (rule) => {
-        if (!rule.name) {
-          console.error(rule);
-          throw new Error('Missing rule name');
-        }
-        const fileName = rule.name.replace(/\s/g, '_').replace(/\W/g, '');
+      const rules = await Promise.all(
+        rulesConfigs.map(async (rule) => {
+          if (!rule.name) {
+            console.error(rule);
+            throw new Error('Missing rule name');
+          }
+          const fileName = rule.name.replace(/\s/g, '_').replace(/\W/g, '');
 
-        const filePath = RULE.replace('{ID}', fileName);
+          const filePath = RULE.replace('{ID}', fileName);
 
-        await writeFile(path.join(baseDirectory, filePath), rule.script);
+          await writeFile(path.join(baseDirectory, filePath), rule.script);
 
-        return {
-          name: rule.name,
-          order: rule.order,
-          enabled: rule.enabled ? true : false,
-          file: fileName,
-        };
+          return {
+            name: rule.name,
+            order: rule.order,
+            enabled: rule.enabled ? true : false,
+            file: fileName,
+          };
+        })
+      );
+
+      const environment: { [index: string]: string } = {};
+
+      rulesEnvironment.forEach((config: { key: string }) => {
+        environment[config.key] = `{{ env.${config.key} }}`;
       });
 
       const rulesConfig = {
-        environment: rulesEnvironment,
+        environment,
         rules,
       };
 
       const rulesYAML = stringify(rulesConfig);
-
-      console.log(rulesConfig, rules);
 
       return writeFile(path.join(baseDirectory, RULES_CONFIG), rulesYAML, {
         encoding: 'utf8',
