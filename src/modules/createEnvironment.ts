@@ -1,7 +1,6 @@
-import { CommandArgs } from './commandArgs';
 import * as yup from 'yup';
-import { ListrContext, ListrTask } from 'listr';
 import { MainCtx } from '../main';
+import { ListrTaskWrapper } from 'listr';
 
 const schema = yup.object({
   AUTH0_DOMAIN: yup.string().required('Auth0 Tenant domain must be provided'),
@@ -16,10 +15,10 @@ const schema = yup.object({
 
 export type EnvVars = yup.InferType<typeof schema>;
 
-export default (ctx: MainCtx): void => {
+export default async (ctx: MainCtx, list: ListrTaskWrapper<MainCtx>) => {
   const { argv } = ctx;
 
-  ctx.env = {
+  const env = {
     AUTH0_DOMAIN: argv.auth0Domain || process.env.AUTH0_DOMAIN,
     AUTH0_CLIENT_ID: argv.auth0ClientId || process.env.AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET:
@@ -27,5 +26,7 @@ export default (ctx: MainCtx): void => {
     BASE_DIR: argv.baseDir || process.env.BASE_DIR || '/',
   };
 
-  schema.validateSync(ctx.env);
+  ctx.env = await schema.validate(env);
+
+  return ctx.env;
 };

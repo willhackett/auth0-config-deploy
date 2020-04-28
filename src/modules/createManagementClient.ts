@@ -1,11 +1,12 @@
 import { ManagementClient } from 'auth0';
 import { MainCtx } from '../main';
+import { ListrTaskWrapper } from 'listr';
 
-export default (ctx: MainCtx): void => {
+export default async (ctx: MainCtx): Promise<any> => {
   const { env } = ctx;
 
   if (!env) {
-    throw new Error('Env is not defined.');
+    return new Error('Env is not defined.');
   }
 
   ctx.managementClient = new ManagementClient({
