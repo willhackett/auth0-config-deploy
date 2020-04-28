@@ -1,0 +1,25 @@
+{
+  "name": "auth0-config-deploy",
+  "version": "1.0.0",
+  "description": "CLI to push configure, test and push configurations to Auth0",
+  "main": "bin/cli.js",
+  "scripts": {
+    "test": "yarn test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willhackett/auth0-config-deploy.git"
+  },
+  "keywords": [
+    "auth0",
+    "config",
+    "deploy",
+    "tool"
+  ],
+  "author": "Will Hackett <willhackett@me.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/willhackett/auth0-config-deploy/issues"
+  },
+  "homepage": "https://github.com/willhackett/auth0-config-deploy#readme"
+}
