@@ -1,1 +1,6 @@
-- key: ABCD
+environment:
+  - key: ABCD
+rules:
+  - {}
+  - {}
+  - {}

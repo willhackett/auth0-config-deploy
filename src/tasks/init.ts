@@ -12,6 +12,7 @@ import {
   CONNECTIONS_CONFIG_DIR,
   RULES_CONFIG,
   RULES_DIR,
+  RULE,
 } from '../config/paths';
 
 const exists = promisify(fs.exists);
@@ -43,6 +44,10 @@ export default async (ctx: MainCtx) => {
 
   const tasks = new Listr();
 
+  /**
+   * PREPARE DIRECTORY STRUCTURE
+   * Create paths to directories so that file write can occur
+   */
   tasks.add({
     title: 'Prepare directory structure',
     task: async () => {
@@ -57,6 +62,10 @@ export default async (ctx: MainCtx) => {
     },
   });
 
+  /**
+   * GETTING TENANT CONFIG
+   * Store the yaml from `getTenantSettings`
+   */
   tasks.add({
     title: 'Getting tenant config',
     task: async () => {
@@ -70,13 +79,41 @@ export default async (ctx: MainCtx) => {
     },
   });
 
+  /**
+   * GETTING RULES
+   * Store rules config and scripts
+   */
   tasks.add({
     title: 'Getting rules',
     task: async () => {
-      const rulesConfig = await client.getRulesConfigs();
-      const rulesYAML = stringify(rulesConfig);
+      const rulesEnvironment = await client.getRulesConfigs();
+      const rulesConfigs = await client.getRules();
 
-      const rules = await client.getRules();
+      const rules = rulesConfigs.map(async (rule) => {
+        if (!rule.name) {
+          console.error(rule);
+          throw new Error('Missing rule name');
+        }
+        const fileName = rule.name.replace(/\s/g, '_').replace(/\W/g, '');
+
+        const filePath = RULE.replace('{ID}', fileName);
+
+        await writeFile(path.join(baseDirectory, filePath), rule.script);
+
+        return {
+          name: rule.name,
+          order: rule.order,
+          enabled: rule.enabled ? true : false,
+          file: fileName,
+        };
+      });
+
+      const rulesConfig = {
+        environment: rulesEnvironment,
+        rules,
+      };
+
+      const rulesYAML = stringify(rulesConfig);
 
       console.log(rulesConfig, rules);
 
@@ -86,11 +123,6 @@ export default async (ctx: MainCtx) => {
       });
     },
   });
-
-  // tasks.add({
-  //   title: 'Getting guardian config',
-  //   ctx.configuration.guardian = await client.g
-  // })
 
   return tasks;
 };
