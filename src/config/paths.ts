@@ -50,6 +50,12 @@ export const CUSTOM_DATABASE_SCRIPT_DIR =
   '/connections/configs/{ID}/custom_database/';
 
 /**
+ * Connections custom database test directory
+ */
+export const CUSTOM_DATABASE_SCRIPT_TESTS_DIR =
+  '/connections/configs/{ID}/custom_database/__test__/';
+
+/**
  * Email template HTML path
  */
 export const EMAIL_TEMPLATE = '/email_templates/templates/${ID}.html';
@@ -63,6 +69,26 @@ export const EMAIL_TEMPLATES_CONFIG = '/email_templates/config.yaml';
  * Guardian configuration
  */
 export const GUARDIAN_CONFIG = '/guardian.yaml';
+
+/**
+ * Rule file
+ */
+export const RULE = '/rules/{ID}.js';
+
+/**
+ * Rule configuration file
+ */
+export const RULES_CONFIG = '/rules/config.yaml';
+
+/**
+ * Rules directory
+ */
+export const RULES_DIR = '/rules/';
+
+/**
+ * Rules tests directory
+ */
+export const RULES_TESTS = '/rules/__test__/';
 
 /**
  * Tenant configuration

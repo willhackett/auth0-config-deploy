@@ -4,12 +4,16 @@ import Listr from 'listr';
 import parseCommandArgs, { CommandArgs } from './modules/commandArgs';
 import createManagementClient from './modules/createManagementClient';
 import createEnv, { EnvVars } from './modules/createEnvironment';
-import tasks from './tasks';
+
+import init from './tasks/init';
+import test from './tasks/test';
+import deploy from './tasks/deploy';
 
 export interface MainCtx {
   argv: CommandArgs;
   env?: EnvVars;
   managementClient?: ManagementClient;
+  configuration?: any;
 }
 
 async function main() {
@@ -32,22 +36,22 @@ async function main() {
   });
 
   tasks.add({
-    title: 'Loading configuration to memory',
-    task: loadConfiguration,
-    enabled: (ctx) => ctx.argv.init !== true,
+    title: 'Importing configuration',
+    task: init,
+    enabled: (ctx) => ctx.argv.init === true,
   });
 
-  tasks.add({
-    title: 'Testing configuration',
-    task: tasks.test,
-    enabled: ({ arvg }) => [argv.test, argv.deploy, argv.dryRun].includes(true),
-  });
+  // tasks.add({
+  //   title: 'Testing configuration',
+  //   task: test,
+  //   enabled: ({ arvg }) => [argv.test, argv.deploy, argv.dryRun].includes(true),
+  // });
 
-  tasks.add({
-    title: 'Deploying configuration',
-    task: tasks.deploy,
-    enabled: ({ argv }) => argv.deploy === true,
-  });
+  // tasks.add({
+  //   title: 'Deploying configuration',
+  //   task: deploy,
+  //   enabled: ({ argv }) => argv.deploy === true,
+  // });
 
   tasks
     .run(context)
