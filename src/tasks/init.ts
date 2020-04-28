@@ -19,6 +19,7 @@ import {
   CLIENT_CONFIG,
   CUSTOM_DATABASE_SCRIPT_DIR,
   CUSTOM_DATABASE_SCRIPT,
+  CUSTOM_DATABASE_SCRIPT_TESTS_DIR,
 } from '../config/paths';
 
 const exists = promisify(fs.exists);
@@ -173,11 +174,20 @@ export default async (ctx: MainCtx) => {
 
           if (id) {
             const connectionConfig = await client.getConnection({ id });
-            if (connection.options.customScripts) {
+            if (connectionConfig.options.customScripts) {
+              await createDirectories(baseDirectory, [
+                CUSTOM_DATABASE_SCRIPT_DIR.replace('{ID}', connectionName),
+                CUSTOM_DATABASE_SCRIPT_TESTS_DIR.replace(
+                  '{ID}',
+                  connectionName
+                ),
+              ]);
+
               await Promise.all(
-                Object.keys(connection.options.customScripts).map(
+                Object.keys(connectionConfig.options.customScripts).map(
                   async (script) => {
-                    const source = connection.options.customScripts[script];
+                    const source =
+                      connectionConfig.options.customScripts[script];
 
                     const filePath = CUSTOM_DATABASE_SCRIPT.replace(
                       '{ID}',
