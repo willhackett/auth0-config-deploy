@@ -2,7 +2,10 @@
   "name": "auth0-config-deploy",
   "version": "1.0.0",
   "description": "CLI to push configure, test and push configurations to Auth0",
-  "main": "bin/cli.js",
+  "main": "src/main.ts",
+  "bin": {
+    "auth0-config-deploy": "bin/auth0-config-deploy"
+  },
   "scripts": {
     "test": "yarn test"
   },
@@ -21,5 +24,17 @@
   "bugs": {
     "url": "https://github.com/willhackett/auth0-config-deploy/issues"
   },
-  "homepage": "https://github.com/willhackett/auth0-config-deploy#readme"
+  "homepage": "https://github.com/willhackett/auth0-config-deploy#readme",
+  "devDependencies": {
+    "@types/node": "^13.13.4",
+    "jest": "^25.4.0",
+    "ts-jest": "^25.4.0",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "arg": "^4.1.3",
+    "auth0": "^2.24.0",
+    "inquirer": "^7.1.0",
+    "liquidjs": "^9.11.10"
+  }
 }
