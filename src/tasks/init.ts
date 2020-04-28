@@ -58,6 +58,7 @@ export default async (ctx: MainCtx) => {
     title: 'Prepare directory structure',
     task: async () => {
       const directories = [
+        '/',
         API_CONFIG_DIR,
         CLIENT_CONFIG_DIR,
         CONNECTIONS_CONFIG_DIR,
