@@ -13,6 +13,8 @@ import {
   RULES_CONFIG,
   RULES_DIR,
   RULE,
+  CONNECTIONS_CONFIG_COMMON,
+  CONNECTION_CONFIG,
 } from '../config/paths';
 
 const exists = promisify(fs.exists);
@@ -127,6 +129,39 @@ export default async (ctx: MainCtx) => {
         encoding: 'utf8',
         flag: 'w',
       });
+    },
+  });
+
+  /**
+   * GETTING CONNECTIONS
+   * Store connection information
+   */
+  tasks.add({
+    title: 'Getting connections',
+    task: async (ctx) => {
+      const connectionsConfig = await client.getConnections();
+
+      await writeFile(path.join(baseDirectory, CONNECTIONS_CONFIG_COMMON), '', {
+        encoding: 'utf8',
+        flag: 'w',
+      });
+
+      return Promise.all(
+        connectionsConfig.map(async ({ id, realms, ...connection }) => {
+          if (!connection.name) {
+            console.warn(`Skipping ${id} because the connection has no name.`);
+            return;
+          }
+          const filePath = CONNECTION_CONFIG.replace('{ID}', connection.name);
+
+          const connectionYAML = stringify(connection);
+
+          return writeFile(path.join(baseDirectory, filePath), connectionYAML, {
+            encoding: 'utf8',
+            flag: 'w',
+          });
+        })
+      );
     },
   });
 
